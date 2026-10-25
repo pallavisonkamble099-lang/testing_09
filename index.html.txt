@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusLens AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172b4d}
+header{background:#123c69;color:white;padding:22px 7%;display:flex;justify-content:space-between;align-items:center}
+header h2{margin:0}
+header span{font-size:13px;color:#c9e7ff}
+main{max-width:1000px;margin:30px auto;padding:0 18px}
+.hero{background:linear-gradient(120deg,#123c69,#247ba0);color:white;padding:28px;border-radius:18px}
+.hero h1{margin-top:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+.card{background:white;border:1px solid #e0e7ef;border-radius:15px;padding:22px;box-shadow:0 4px 14px #173b5910}
+h3{margin-top:0}
+textarea,input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;margin:8px 0;font:inherit}
+textarea{min-height:110px;resize:vertical}
+button{background:#176b87;color:white;border:0;border-radius:9px;padding:12px 16px;cursor:pointer;font-weight:bold}
+button:hover{background:#104d68}
+.secondary{background:#e6f3f8;color:#12445c}
+#answer{white-space:pre-wrap;line-height:1.6;margin-top:14px}
+.task{padding:12px;background:#f0f7fa;border-radius:9px;margin:8px 0}
+.small{font-size:13px;color:#62748a;line-height:1.5}
+footer{text-align:center;padding:24px;color:#62748a;font-size:13px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}header{padding:18px;gap:10px}}
+</style>
+</head>
+<body>
+<header>
+  <h2>🎓 CampusLens AI</h2>
+  <span>Your College Companion</span>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>College life, made easier.</h1>
+    <p>Understand notices, find important dates and organise your college tasks.</p>
+    <strong>📚 Learn smarter. Never miss a deadline.</strong>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h3>📄 Ask Your Notice</h3>
+      <p class="small">Paste your college notice below. This prototype analyses the text you provide.</p>
+      <textarea id="notice" placeholder="Paste your college notice here..."></textarea>
+      <input id="question" placeholder="Ask a question about this notice">
+      <button onclick="askNotice()">Find Answer</button>
+      <button class="secondary" onclick="summarise()">Summarise Notice</button>
+      <div id="answer" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <h3>📅 Deadline Radar</h3>
+      <p class="small">Add tasks and keep track of upcoming work.</p>
+      <input id="taskName" placeholder="Assignment or practical name">
+      <input id="taskDate" type="date">
+      <button onclick="addTask()">Add Deadline</button>
+      <div id="tasks"></div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:18px">
+    <h3>✨ Try a sample notice</h3>
+    <p class="small">Load sample data to test the prototype.</p>
+    <button class="secondary" onclick="loadSample()">Load Sample Notice</button>
+    <p class="small">Prototype mode: answers are based on simple text matching, not a live AI model. Verify dates against the original college notice.</p>
+  </section>
+</main>
+
+<footer>CampusLens AI · Student innovation project</footer>
+
+<script>
+function loadSample(){
+ document.getElementById('notice').value =
+ "B.Tech First Year Notice. Programming practical will be held on 28 October 2026. Submit Assignment 2 by 30 October 2026. Students must bring their college ID card.";
+ document.getElementById('question').value = "When is the programming practical?";
+ document.getElementById('answer').textContent = "Sample notice loaded. Click Find Answer or Summarise Notice.";
+}
+
+function askNotice(){
+ const text=document.getElementById('notice').value.trim();
+ const q=document.getElementById('question').value.trim();
+ const out=document.getElementById('answer');
+ if(!text||!q){out.textContent="Please enter a notice and a question.";return;}
+ const sentences=text.match(/[^.!?\n]+[.!?]?/g)||[text];
+ const words=q.toLowerCase().split(/\W+/).filter(w=>w.length>3);
+ const matches=sentences.filter(s=>words.some(w=>s.toLowerCase().includes(w)));
+ out.textContent=matches.length
+ ? "Possible answer from your notice:\n"+matches.join("\n")+"\n\nPlease verify this against the original notice."
+ : "I couldn't find a clear matching answer in the pasted text. Check the original notice or try different keywords.";
+}
+
+function summarise(){
+ const text=document.getElementById('notice').value.trim();
+ document.getElementById('answer').textContent=text
+ ? "Notice text:\n"+text+"\n\nReview the important dates and tasks above. This basic prototype does not yet generate an AI summary."
+ : "Please paste a college notice first.";
+}
+
+function addTask(){
+ const name=document.getElementById('taskName').value.trim();
+ const date=document.getElementById('taskDate').value;
+ if(!name||!date){alert("Please enter a task name and deadline.");return;}
+ const item=document.createElement('div');
+ item.className='task';
+ const label=document.createElement('span');
+ label.textContent=name+" — "+date;
+ const done=document.createElement('input');
+ done.type='checkbox';
+ done.style.width='auto';
+ done.style.marginRight='10px';
+ done.setAttribute('aria-label','Mark task complete');
+ const remove=document.createElement('button');
+ remove.textContent='Remove';
+ remove.style.marginLeft='10px';
+ remove.onclick=()=>item.remove();
+ item.append(done,label,remove);
+ document.getElementById('tasks').appendChild(item);
+ document.getElementById('taskName').value='';
+ document.getElementById('taskDate').value='';
+}
+</script>
+</body>
+</html>
